@@ -7,6 +7,7 @@ library(stringr)
 args <- commandArgs(TRUE)
 
 pass_list <- args[1]
+out_basename <- args[2]
 
 passwords <- data.table(pass=readLines(file(pass_list)))
 total <- nrow(passwords)
@@ -18,7 +19,8 @@ rownames(top.10) <- NULL
 top.10 <- top.10[,c(1,2)]
 colnames(top.10) <- c("Password", "Count")
 top.10$Percent <- sprintf("%3.2f%%", ((top.10$Count / total) * 100))
-print("Top 10 Passwords")
+write.csv(top.10, paste(out_basename, "top10.csv", sep="_"), row.names=FALSE)
+print("Top 10 Passwords", row.names=FALSE)
 print(top.10, row.names=FALSE)
 
 # password length
@@ -32,8 +34,9 @@ print("Password Length")
 length_table <- table(passwords$len)
 #summary(factor(passwords$len, levels = names(length_table[order(length_table, decreasing = TRUE)])))
 pass.freq <- as.data.frame(table(factor(passwords$len, levels = names(length_table[order(length_table, decreasing = TRUE)]))))
-colnames(pass.freq) <- c("Password", "Count")
+colnames(pass.freq) <- c("Password Length", "Count")
 pass.freq$Percent <- sprintf("%3.2f%%", ((pass.freq$Count / total) * 100))
+write.csv(pass.freq, paste(out_basename, "len.csv", sep="_"), row.names=FALSE)
 print(pass.freq, row.names=FALSE)
 
 # pasword composition
@@ -45,8 +48,14 @@ alpha_numeric <- sum(grepl("^[[:alnum:]]*$",passwords$pass))
 punct_char <- sum(grepl("^[[:punct:]]*$",passwords$pass))
 
 print(sprintf("lowercase alpha characters = %d, (%3.3f%%)", lower.alpha, (lower.alpha/total)*100))
+write(sprintf("lowercase alpha characters = %d, (%3.3f%%)", lower.alpha, (lower.alpha/total)*100), file=paste(out_basename, "comp.txt", sep="_"))
 print(sprintf("uppercase alpha characters = %d, (%3.3f%%)", upper.alpha, (upper.alpha/total)*100))
+write(sprintf("uppercase alpha characters = %d, (%3.3f%%)", upper.alpha, (upper.alpha/total)*100), file=paste(out_basename, "comp.txt", sep="_"), append=TRUE)
 print(sprintf("numeric characters = %d, (%3.3f%%)", numeric_char, (numeric_char/total)*100))
+write(sprintf("numeric characters = %d, (%3.3f%%)", numeric_char, (numeric_char/total)*100), file=paste(out_basename, "comp.txt", sep="_"), append=TRUE)
 print(sprintf("alpha characters = %d, (%3.3f%%)", alpha_char, (alpha_char/total)*100))
+write(sprintf("alpha characters = %d, (%3.3f%%)", alpha_char, (alpha_char/total)*100), file=paste(out_basename, "comp.txt", sep="_"), append=TRUE)
 print(sprintf("alphanumeric characters = %d, (%3.3f%%)", alpha_numeric, (alpha_numeric/total)*100))
+write(sprintf("alphanumeric characters = %d, (%3.3f%%)", alpha_numeric, (alpha_numeric/total)*100), file=paste(out_basename, "comp.txt", sep="_"), append=TRUE)
 print(sprintf("punctuation characters = %d, (%3.3f%%)", punct_char, (punct_char/total)*100))
+write(sprintf("punctuation characters = %d, (%3.3f%%)", punct_char, (punct_char/total)*100), file=paste(out_basename, "comp.txt", sep="_"), append=TRUE)
